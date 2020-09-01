@@ -1,4 +1,4 @@
-"""An restricted Python kernel"""
+"""A restricted Python kernel"""
 
 __version__ = '0.1'
 
