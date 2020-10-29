@@ -55,30 +55,29 @@ class ExamKernel(IPythonKernel):
         code = re.sub(r'^\s*%\w+', '', code, flags=re.MULTILINE)
         return code
 
+    def find_import(self, line):
+        match = self.standard_import.match(line) or self.from_import.match(line)
+        if match:
+            return match.group(1).strip()
+
     def sanitize_imports(self, code):
 
         if len(self.allowed_imports) == 0 and len(self.blocked_imports) == 0:
             return code
 
-        if len(self.allowed_imports) > 0:
-            sanitized = []
+        sanitized = []
+        if len(self.allowed_imports) > 0:            
             for line in code.split('\n'):
-                match = self.standard_import.match(line) or self.from_import.match(line)
-                if match:
-                    lib = match.group(1)
-                    if lib.strip() not in self.allowed_imports:                        
-                        line = "raise ModuleNotFoundError('No module named {0} or {0} blocked by kernel.')".format(lib)
+                lib = self.find_import(line)
+                if lib and lib not in self.allowed_imports:
+                    line = "raise ModuleNotFoundError('No module named {0} or {0} blocked by kernel.')".format(lib)
                 sanitized.append(line)
         else:
-            sanitized = []
             for line in code.split('\n'):
-                match = self.standard_import.match(line) or self.from_import.match(line)
-                if match:
-                    lib = match.group(1)
-                    if lib.strip() in self.blocked_imports:
-                        line = "raise ModuleNotFoundError('No module named {0} or {0} blocked by kernel.')".format(lib)
+                lib = self.find_import(line)
+                if lib and lib in self.blocked_imports:
+                    line = "raise ModuleNotFoundError('No module named {0} or {0} blocked by kernel.')".format(lib)
                 sanitized.append(line)
-
         return '\n'.join(sanitized)
 
     def sanitize(self, code):
