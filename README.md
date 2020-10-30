@@ -12,7 +12,7 @@ The libraries a user can use can be restricted by blocking or allowing certain i
 git clone https://github.com/DigiKlausur/exam_kernel
 cd exam_kernel
 pip install .
-jupyter kernelspec install exam_kernel --sys-prefix
+python -m exam_kernel.install --sys-prefix
 ```
 
 ## Configuration
