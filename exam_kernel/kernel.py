@@ -32,20 +32,20 @@ class ExamKernel(IPythonKernel):
         '''
         super().do_execute(self.init_code, silent=False)
 
-    def remove_empty_lines(self, code):
+    def remove_empty_lines(self, code: str) -> str:
         '''
         Remove all empty lines at the beginning and end
         of the code snippet
         '''
         return code.strip('\n')
 
-    def remove_terminal_commands(self, code):
+    def remove_terminal_commands(self, code: str) -> str:
         '''
         Remove all lines that start with an exclamation mark
         '''
         return re.sub(r'^!.*', '', code, flags=re.MULTILINE)
 
-    def remove_magics(self, code):
+    def remove_magics(self, code: str) -> str:
         '''
         Remove all cell and line magics from the code
         '''
@@ -55,7 +55,12 @@ class ExamKernel(IPythonKernel):
         code = re.sub(r'^\s*%\w+', '', code, flags=re.MULTILINE)
         return code
 
-    def sanitize_imports(self, code):
+    def find_import(self, line: str) -> str:
+        match = self.standard_import.match(line) or self.from_import.match(line)
+        if match:
+            return match.group(1).strip()
+
+    def sanitize_imports(self, code: str) -> str:
 
         if len(self.allowed_imports) == 0 and len(self.blocked_imports) == 0:
             return code
@@ -63,25 +68,21 @@ class ExamKernel(IPythonKernel):
         if len(self.allowed_imports) > 0:
             sanitized = []
             for line in code.split('\n'):
-                match = self.standard_import.match(line) or self.from_import.match(line)
-                if match:
-                    lib = match.group(1)
-                    if lib.strip() not in self.allowed_imports:                        
-                        line = "raise ModuleNotFoundError('No module named {0} or {0} blocked by kernel.')".format(lib)
+                lib = self.find_import(line)
+                if lib and lib not in self.allowed_imports:
+                    line = "raise ModuleNotFoundError('No module named {0} or {0} blocked by kernel.')".format(lib)
                 sanitized.append(line)
         else:
             sanitized = []
             for line in code.split('\n'):
-                match = self.standard_import.match(line) or self.from_import.match(line)
-                if match:
-                    lib = match.group(1)
-                    if lib.strip() in self.blocked_imports:
-                        line = "raise ModuleNotFoundError('No module named {0} or {0} blocked by kernel.')".format(lib)
+                lib = self.find_import(line)
+                if lib and lib in self.blocked_imports:
+                    line = "raise ModuleNotFoundError('No module named {0} or {0} blocked by kernel.')".format(lib)
                 sanitized.append(line)
 
         return '\n'.join(sanitized)
 
-    def sanitize(self, code):
+    def sanitize(self, code: str) -> str:
         '''
         Sanitize the code before executing it
         '''
@@ -91,7 +92,7 @@ class ExamKernel(IPythonKernel):
         code = self.sanitize_imports(code)
         return code
 
-    def do_execute(self, code, silent, store_history=True, user_expressions=None,
-                   allow_stdin=False):
+    def do_execute(self, code: str, silent: bool, store_history: bool=True, 
+                   user_expressions: dict=None, allow_stdin: bool=False) -> dict:
         code = self.sanitize(code)
         return super().do_execute(code, silent, store_history, user_expressions, allow_stdin)
