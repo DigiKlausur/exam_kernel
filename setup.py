@@ -20,4 +20,6 @@ setup(
         'License :: MIT',
         'Programming Language :: Python :: 3',
     ],
+    test_suite='tests',
+    tests_require=['pytest-cov']
 )
