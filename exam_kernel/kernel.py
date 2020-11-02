@@ -1,7 +1,8 @@
+import re
 from ipykernel.ipkernel import IPythonKernel
 from traitlets.config import LoggingConfigurable
-from traitlets import List, Unicode
-import re
+from traitlets import List, Bool, Unicode
+from textwrap import dedent
 
 class ExamKernel(IPythonKernel):
     implementation = 'Exam'
@@ -14,23 +15,69 @@ class ExamKernel(IPythonKernel):
         'extension': '.py',
     }
     banner = "Exam kernel - Restricted kernel for exams"
+    
+    allowed_imports = List(
+        None, 
+        help=dedent('''
+            The imports that can be used.
+            By default all imports are allowed
+        ''')
+    ).tag(config=True)
 
-    allowed_imports = List([], help='The imports that can be used', config=True)
-    blocked_imports = List([], help='The imports that are blocked. If allowed_imports is not empty it supercedes this', config=True)
-    init_code = Unicode('', help='The code that should always be executed when the kernel is loaded.', config=True)
+    blocked_imports = List(
+        [],
+        help=dedent('''
+            The imports that are blocked.
+            If allowed_imports is set it this takes no effect.''')
+    ).tag(config=True)
+    
+    allowed_magics = List(
+        None,
+        help=dedent('''
+            The magics that can be used.
+            By default all magics are allowed.''')
+    ).tag(config=True)
+    
+    blocked_magics = List(
+        None,
+        help=dedent('''
+            The magics that are blocked.
+            If allowed_magics is set it this takes no effect.''')
+    ).tag(config=True)
 
+    init_code = Unicode(
+        None,
+        allow_none=True,
+        help=dedent('''
+            The code that should always be executed when the kernel is loaded.
+        ''')
+    ).tag(config=True)
+    
     def __init__(self, **kwargs):
         super(ExamKernel, self).__init__(**kwargs)
         self.standard_import = re.compile(r'^\s*import\s+(\w+)', flags=re.MULTILINE)
         self.from_import = re.compile(r'^\s*from\s+(\w+)', flags=re.MULTILINE)
+        self.cell_magic = re.compile(r'^\s*%%(\w+)', flags=re.MULTILINE)
+        self.line_magic = re.compile(r'^\s*%(\w+)', flags=re.MULTILINE)
         self.blocked_imports.append('importlib')
-        self.init_kernel()  
-
+        self.init_kernel()
+        
     def init_kernel(self):
         '''
         Execute the init_code at when the kernel is loaded
         '''
-        super().do_execute(self.init_code, silent=False)
+        if self.init_code:
+            super().do_execute(self.init_code, silent=False)
+        
+    def find_import(self, line: str) -> str:
+        match = self.standard_import.match(line) or self.from_import.match(line)
+        if match:
+            return match.group(1).strip()
+
+    def find_magic(self, line: str) -> str:
+        match = self.cell_magic.match(line) or self.line_magic.match(line)
+        if match:
+            return match.group(1).strip()
 
     def remove_empty_lines(self, code: str) -> str:
         '''
@@ -44,54 +91,61 @@ class ExamKernel(IPythonKernel):
         Remove all lines that start with an exclamation mark
         '''
         return re.sub(r'^!.*', '', code, flags=re.MULTILINE)
-
-    def remove_magics(self, code: str) -> str:
-        '''
-        Remove all cell and line magics from the code
-        '''
-        # Cell magics
-        code = re.sub(r'^\s*%%\w+', '', code)
-        # Line magics
-        code = re.sub(r'^\s*%\w+', '', code, flags=re.MULTILINE)
-        return code
-
-    def find_import(self, line: str) -> str:
-        match = self.standard_import.match(line) or self.from_import.match(line)
-        if match:
-            return match.group(1).strip()
-
+    
     def sanitize_imports(self, code: str) -> str:
 
-        if len(self.allowed_imports) == 0 and len(self.blocked_imports) == 0:
+        if self.allowed_imports is None and len(self.blocked_imports) == 0:
             return code
 
-        if len(self.allowed_imports) > 0:
+        if self.allowed_imports is not None:
             sanitized = []
             for line in code.split('\n'):
                 lib = self.find_import(line)
                 if lib and lib not in self.allowed_imports:
-                    line = "raise ModuleNotFoundError('No module named {0} or {0} blocked by kernel.')".format(lib)
+                    line = f"raise ModuleNotFoundError('No module named {lib} or {lib} blocked by kernel.')"
                 sanitized.append(line)
         else:
             sanitized = []
             for line in code.split('\n'):
                 lib = self.find_import(line)
                 if lib and lib in self.blocked_imports:
-                    line = "raise ModuleNotFoundError('No module named {0} or {0} blocked by kernel.')".format(lib)
+                    line = f"raise ModuleNotFoundError('No module named {lib} or {lib} blocked by kernel.')"
                 sanitized.append(line)
 
         return '\n'.join(sanitized)
+    
+    def sanitize_magics(self, code: str) -> str:
 
+        if self.allowed_magics is None and self.blocked_magics is None:
+            return code
+
+        if self.allowed_magics is not None:
+            sanitized = []
+            for line in code.split('\n'):
+                magic = self.find_magic(line)
+                if magic and magic not in self.allowed_magics:
+                    line = f"raise ValueError('No magic named {magic} or {magic} blocked by kernel.')"
+                sanitized.append(line)
+        else:
+            sanitized = []
+            for line in code.split('\n'):
+                magic = self.find_magic(line)
+                if magic and magic in self.blocked_magics:
+                    line = line = f"raise ValueError('No magic named {magic} or {magic} blocked by kernel.')"
+                sanitized.append(line)
+        
+        return '\n'.join(sanitized)
+    
     def sanitize(self, code: str) -> str:
         '''
         Sanitize the code before executing it
         '''
         code = self.remove_empty_lines(code)
         code = self.remove_terminal_commands(code)
-        code = self.remove_magics(code)
+        code = self.sanitize_magics(code)
         code = self.sanitize_imports(code)
         return code
-
+    
     def do_execute(self, code: str, silent: bool, store_history: bool=True, 
                    user_expressions: dict=None, allow_stdin: bool=False) -> dict:
         code = self.sanitize(code)
