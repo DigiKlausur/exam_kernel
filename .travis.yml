@@ -9,6 +9,7 @@ sudo: false
 install:
   - pip install --upgrade setuptools pip pytest pytest-cov
   - pip install .
+  - python -m exam_kernel.install --sys-prefix
 addons:
   sonarcloud:
     organization: "digiklausur"
