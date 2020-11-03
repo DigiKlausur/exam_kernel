@@ -12,8 +12,7 @@ install:
 addons:
   sonarcloud:
     organization: "digiklausur"
-    token:
-      secure: "EFzoy0k9SrEIo73RretKM1BVT0UJzZqOaD/a+75mgQ6/P6xOC3vIzQdRxRUcUKYZ7CdOgphOzGrlisFb6bvJYWM0mzekh9GFBWCN/Dxn+TKTXEq2lm0b/RLsHAHSF+76ePL2txHkXJZscAk/EfS306zHAdrK1DjOLIhbgwxaBrf4f40dF5qwviJuRPWconuxNwaRQYhS/rd85GZ6Lc1dxQXaerJVq38AVoxKFFPgK6TwfeSy95no8r9RYtichcAa5OoWV1vP9o4SwvQ9otN8E9zQ2GehgA9O7D7rCmvJOMg4qaiZBgcEgiOInuHdUqmM19ZVPoY1CtvMTd7enwSb6ZaRmbfkBaL79cDvQxxb40gmdP2dvMwKddd3vFOHEir84/HBudz7ZnAQWUlbN6tmzPOhtq+8l0cvfQkHiQ9WnhWlEp4qxghn27hJiR3vdDQZsoR76B6tild0DNKQtEMwS9bc/Bpq4yyTk4n3+C0WplNAuq+V0LeoRCz8O6nCimDIxBhuMWw9REkCLTUeSbbRAbPoG7av85AbH5Yg7NmwAzKME3GMGi1/4vvHl8q5lw9OSTIphsf05C/6T4vku+CTQbCOkNaP5jZ6j4bGhxCnfT8XMT9HsdFQzkXoAeM4cspb6RpFiLXqZDiy5jM1ZKN5UzMdAtfcmCpU6lfo4MCAp/8="
+    token: ${SONAR_TOKEN}
 script:
   - py.test --cov exam_kernel -v --cov-report xml
   - sonar-scanner
