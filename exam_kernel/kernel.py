@@ -1,8 +1,19 @@
 import re
 from ipykernel.ipkernel import IPythonKernel
 from traitlets.config import LoggingConfigurable
-from traitlets import List, Bool, Unicode
+from traitlets import TraitType, Unicode
 from textwrap import dedent
+
+class List(TraitType):
+
+    default_value = None
+    allow_none = True
+    info_text = 'a list that can be None'
+    
+    def validate(self, obj, value):
+        if value is None or isinstance(value, list):
+            return value
+        self.error(obj, value)
 
 class ExamKernel(IPythonKernel):
     implementation = 'Exam'
@@ -17,7 +28,7 @@ class ExamKernel(IPythonKernel):
     banner = "Exam kernel - Restricted kernel for exams"
     
     allowed_imports = List(
-        None, 
+        default_value=None, 
         help=dedent('''
             The imports that can be used.
             By default all imports are allowed
@@ -28,7 +39,7 @@ class ExamKernel(IPythonKernel):
         [],
         help=dedent('''
             The imports that are blocked.
-            If allowed_imports is set it this takes no effect.''')
+            If allowed_imports is set this takes no effect.''')
     ).tag(config=True)
     
     allowed_magics = List(
@@ -42,7 +53,7 @@ class ExamKernel(IPythonKernel):
         None,
         help=dedent('''
             The magics that are blocked.
-            If allowed_magics is set it this takes no effect.''')
+            If allowed_magics is set this takes no effect.''')
     ).tag(config=True)
 
     init_code = Unicode(
@@ -91,6 +102,23 @@ class ExamKernel(IPythonKernel):
         Remove all lines that start with an exclamation mark
         '''
         return re.sub(r'^!.*', '', code, flags=re.MULTILINE)
+
+    def blocked_import_message(self, lib, blocked=False):
+        self.log.info(f'Creating blocked message with blocked={blocked} and lib={lib}')
+        msg = f"No module named {lib} or {lib} blocked by kernel.\\n"
+        if blocked:
+            msg += f"The following imports are blocked: [{', '.join(self.blocked_imports)}]"
+        else:
+            msg += f"Allowed imports are: [{', '.join(self.allowed_imports)}]"
+        return f"raise ModuleNotFoundError('{msg}')"
+
+    def blocked_magic_message(self, magic, blocked=False):
+        msg = f"No magic named {magic} or {magic} blocked by kernel.\\n"
+        if blocked:
+            msg += f"The following magics are blocked: [{', '.join(self.blocked_magics)}]"
+        else:
+            msg += f"Allowed magics are: [{', '.join(self.allowed_magics)}]"
+        return f"raise ValueError('{msg}')"  
     
     def sanitize_imports(self, code: str) -> str:
 
@@ -102,14 +130,14 @@ class ExamKernel(IPythonKernel):
             for line in code.split('\n'):
                 lib = self.find_import(line)
                 if lib and lib not in self.allowed_imports:
-                    line = f"raise ModuleNotFoundError('No module named {lib} or {lib} blocked by kernel.')"
+                    line = self.blocked_import_message(lib)
                 sanitized.append(line)
         else:
             sanitized = []
             for line in code.split('\n'):
                 lib = self.find_import(line)
                 if lib and lib in self.blocked_imports:
-                    line = f"raise ModuleNotFoundError('No module named {lib} or {lib} blocked by kernel.')"
+                    line = self.blocked_import_message(lib, blocked=True)
                 sanitized.append(line)
 
         return '\n'.join(sanitized)
@@ -124,14 +152,14 @@ class ExamKernel(IPythonKernel):
             for line in code.split('\n'):
                 magic = self.find_magic(line)
                 if magic and magic not in self.allowed_magics:
-                    line = f"raise ValueError('No magic named {magic} or {magic} blocked by kernel.')"
+                    line = self.blocked_magic_message(magic)
                 sanitized.append(line)
         else:
             sanitized = []
             for line in code.split('\n'):
                 magic = self.find_magic(line)
                 if magic and magic in self.blocked_magics:
-                    line = line = f"raise ValueError('No magic named {magic} or {magic} blocked by kernel.')"
+                    line = self.blocked_magic_message(magic, blocked=True)
                 sanitized.append(line)
         
         return '\n'.join(sanitized)
