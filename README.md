@@ -2,6 +2,8 @@
 
 A wrapper for the IPython kernel that sanitizes the input before execution.
 
+A more in depth explanation can be found in the [docs](https://digiklausur.github.io/exam_kernel/exam_kernel.html).
+
 This kernel blocks all magic commands including ```!```.
 
 The libraries a user can use can be restricted by blocking or allowing certain imports. The module ```importlib``` is blocked by default.

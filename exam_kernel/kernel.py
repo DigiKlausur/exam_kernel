@@ -1,7 +1,7 @@
 import re
 from ipykernel.ipkernel import IPythonKernel
 from traitlets.config import LoggingConfigurable
-from traitlets import TraitType, Unicode
+from traitlets import TraitType, Unicode, Bool
 from textwrap import dedent
 
 class List(TraitType):
@@ -26,6 +26,14 @@ class ExamKernel(IPythonKernel):
         'extension': '.py',
     }
     banner = "Exam kernel - Restricted kernel for exams"
+
+    block_terminal_commands = Bool(
+        default_value=True,
+        help=dedent('''
+            Whether to block all terminal commands or not.
+            Default is blocked
+        ''')
+    ).tag(config=True)
     
     allowed_imports = List(
         default_value=None, 
@@ -101,7 +109,10 @@ class ExamKernel(IPythonKernel):
         '''
         Remove all lines that start with an exclamation mark
         '''
-        return re.sub(r'^!.*', '', code, flags=re.MULTILINE)
+        if self.block_terminal_commands:
+            return re.sub(r'^!.*', '', code, flags=re.MULTILINE)
+        else:
+            return code
 
     def blocked_import_message(self, lib, blocked=False):
         self.log.info(f'Creating blocked message with blocked={blocked} and lib={lib}')
