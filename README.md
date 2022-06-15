@@ -24,7 +24,7 @@ This file is usually located under ```~/.ipython```.
 
 ### 1. Initialization Code
 
-This is the code that will be executed every time the kernel is initialized and set via the configuration option ```init_code```.
+This is the code that will be executed every time the kernel is initialized and set via the configuration option ```IPKernelApp.exec_lines```.
 
 Example config:
 
@@ -33,10 +33,10 @@ Example config:
 
 c = get_config()
 
-c.ExamKernel.init_code = 'import random'
+c.IPKernelApp.exec_lines = ['import math', 'import random']
 ```
 
-In this example the library ```random``` is imported every time the kernel is initialized, making it available to the user right away.
+In this example the libraries ```math``` and ```random``` are imported every time the kernel is initialized, making them available to the user right away.
 
 ### 2. Allowed Imports
 
