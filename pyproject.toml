@@ -32,6 +32,6 @@ dev = [
 ]
 
 [project.urls]
-Documentation = "https://e2x.inf.h-brs.de"
+Documentation = "https://exam-kernel.readthedocs.io"
 Issues = "https://github.com/Digiklausur/exam_kernel/issues"
 Source = "https://github.com/Digiklausur/exam_kernel"
