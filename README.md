@@ -2,7 +2,7 @@
 
 A wrapper for the IPython kernel that sanitizes the input before execution.
 
-A more in depth explanation can be found in the [docs](https://digiklausur.github.io/exam_kernel/exam_kernel.html).
+A more in depth explanation can be found in the [docs](https://exam_kernel.readthedocs.io).
 
 This kernel blocks all magic commands including ```!```.
 
@@ -11,9 +11,7 @@ The libraries a user can use can be restricted by blocking or allowing certain i
 ## Installation
 
 ```
-git clone https://github.com/DigiKlausur/exam_kernel
-cd exam_kernel
-pip install .
+pip install exam_kernel
 python -m exam_kernel.install --sys-prefix
 ```
 
