@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "exam_kernel"
-version = "0.1.1"
+version = "0.1.2"
 description = "A restricted configurable Python kernel for exams"
 readme = "README.md"
 requires-python = ">3.7"
