@@ -2,7 +2,7 @@
 
 A wrapper for the IPython kernel that sanitizes the input before execution.
 
-A more in depth explanation can be found in the [docs](https://exam_kernel.readthedocs.io).
+A more in depth explanation can be found in the [docs](https://exam-kernel.readthedocs.io/en/latest/).
 
 This kernel blocks all magic commands including ```!```.
 
