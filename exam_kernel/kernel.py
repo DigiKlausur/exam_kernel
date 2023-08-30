@@ -1,12 +1,11 @@
 import re
-from ipykernel.ipkernel import IPythonKernel
-from traitlets.config import LoggingConfigurable
-from traitlets import TraitType, Unicode, Bool
 from textwrap import dedent
+
+from ipykernel.ipkernel import IPythonKernel
+from traitlets import Bool, TraitType, Unicode
 
 
 class List(TraitType):
-
     default_value = None
     allow_none = True
     info_text = "a list that can be None"
@@ -148,7 +147,6 @@ class ExamKernel(IPythonKernel):
         return f"raise ValueError('{msg}')"
 
     def sanitize_imports(self, code: str) -> str:
-
         if self.allowed_imports is None and len(self.blocked_imports) == 0:
             return code
 
@@ -170,7 +168,6 @@ class ExamKernel(IPythonKernel):
         return "\n".join(sanitized)
 
     def sanitize_magics(self, code: str) -> str:
-
         if self.allowed_magics is None and self.blocked_magics is None:
             return code
 

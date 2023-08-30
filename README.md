@@ -1,4 +1,10 @@
-# exam_kernel
+# Exam Kernel
+
+[![PyPi](https://img.shields.io/pypi/v/exam_kernel)](https://pypi.org/project/exam_kernel)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Documentation Status](https://readthedocs.org/projects/exam-kernel/badge/?version=latest)](https://exam-kernel.readthedocs.io/en/latest/?badge=latest)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 A wrapper for the IPython kernel that sanitizes the input before execution.
 

@@ -1,25 +1,28 @@
-import json
 import argparse
+import json
 import os
-import tempfile
 import sys
+import tempfile
+
 from jupyter_client.kernelspec import KernelSpecManager
 
 kernel_json = {
-    "argv": ["python", "-m",
-             "exam_kernel", "-f",
-             "{connection_file}"],
+    "argv": ["python", "-m", "exam_kernel", "-f", "{connection_file}"],
     "display_name": "ExamKernel",
     "name": "ExamKernel",
-    "language": "python"
+    "language": "python",
 }
+
 
 def install_exam_kernel(user=True, prefix=None):
     with tempfile.TemporaryDirectory() as tmp:
         os.chmod(tmp, 0o755)
-        with open(os.path.join(tmp, 'kernel.json'), 'w') as f:
+        with open(os.path.join(tmp, "kernel.json"), "w") as f:
             json.dump(kernel_json, f, sort_keys=True)
-        KernelSpecManager().install_kernel_spec(tmp, 'exam_kernel', user=user, prefix=prefix)
+        KernelSpecManager().install_kernel_spec(
+            tmp, "exam_kernel", user=user, prefix=prefix
+        )
+
 
 def _is_root():
     try:
@@ -27,14 +30,19 @@ def _is_root():
     except AttributeError:
         return False
 
+
 def main(argv=None):
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('--user', action='store_true',
-        help='Install to the per-user kernels registry. Default if not root')
+    parser.add_argument(
+        "--user",
+        action="store_true",
+        help="Install to the per-user kernels registry. Default if not root",
+    )
 
-    parser.add_argument('--sys-prefix', action='store_true',
-        help='Install to the sys.prefix.')
+    parser.add_argument(
+        "--sys-prefix", action="store_true", help="Install to the sys.prefix."
+    )
 
     args = parser.parse_args(argv)
 
@@ -43,10 +51,8 @@ def main(argv=None):
     if not args.prefix and not _is_root():
         args.user = True
 
-
     install_exam_kernel(user=args.user, prefix=args.prefix)
 
-if __name__ == '__main__':
-    main()
-    
 
+if __name__ == "__main__":
+    main()
