@@ -47,7 +47,7 @@ Pypi = "https://pypi.org/project/exam-kernel/"
 github_url = "https://github.com/Digiklausur/exam_kernel/"
 
 [tool.tbump.version]
-current = "0.1.2"
+current = "0.2.0"
 
 regex = '''
   (?P<major>\d+)
