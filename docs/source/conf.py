@@ -6,10 +6,10 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Exam Kernel'
-copyright = '2023, Tim Metzler'
-author = 'Tim Metzler'
-release = '0.1.2'
+project = "Exam Kernel"
+copyright = "2023, Tim Metzler"
+author = "Tim Metzler"
+release = "0.1.2"
 github_project_url = "https://github.com/Digiklausur/exam_kernel"
 
 # -- General configuration ---------------------------------------------------
@@ -17,9 +17,8 @@ github_project_url = "https://github.com/Digiklausur/exam_kernel"
 
 extensions = []
 
-templates_path = ['_templates']
+templates_path = ["_templates"]
 exclude_patterns = []
-
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -37,7 +36,7 @@ html_theme_options = {
     "use_edit_page_button": True,
     "navbar_align": "left",
 }
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 html_context = {
     "github_user": "DigiKlausur",
