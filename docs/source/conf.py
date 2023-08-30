@@ -9,7 +9,7 @@
 project = "Exam Kernel"
 copyright = "2023, Tim Metzler"
 author = "Tim Metzler"
-release = "0.1.2"
+release = "0.2.0"
 github_project_url = "https://github.com/Digiklausur/exam_kernel"
 
 # -- General configuration ---------------------------------------------------
