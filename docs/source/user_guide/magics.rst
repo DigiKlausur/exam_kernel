@@ -13,7 +13,7 @@ Example of using ``allowed_magics``:
 
     # In ipython_config.py
     c = get_config()
-    c.ExamKernel.allowed_imports = ["time"]
+    c.ExamKernel.allowed_magics = ["time"]
 
 .. code-block:: python
     :caption: Example of trying to use a magic that is not in the allowed magics
@@ -30,7 +30,7 @@ Example of using ``blocked_magics``:
 
     # In ipython_config.py
     c = get_config()
-    c.ExamKernel.blocked_imports = ["time"]
+    c.ExamKernel.blocked_magics = ["time"]
 
 .. code-block:: python
     :caption: Example of trying to use a magic that is in the blocked magics
